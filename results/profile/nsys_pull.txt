@@ -1,0 +1,14 @@
+Generating SQLite file results/profile/nsys_pull.sqlite from results/profile/nsys_pull.nsys-rep
+Processing [results/profile/nsys_pull.sqlite] with [/opt/nvidia/nsight-systems/2024.5.1/host-linux-x64/reports/cuda_gpu_kern_sum.py]... 
+
+ ** CUDA GPU Kernel Summary (cuda_gpu_kern_sum):
+
++----------+-----------------+-----------+------------+------------+----------+-----------+-------------+------------------------------------------------------------------------------------------------------+
+| Time (%) | Total Time (ns) | Instances |  Avg (ns)  |  Med (ns)  | Min (ns) | Max (ns)  | StdDev (ns) |                                                 Name                                                 |
++----------+-----------------+-----------+------------+------------+----------+-----------+-------------+------------------------------------------------------------------------------------------------------+
+|     96.9 |    95,36,43,360 |     1,000 | 9,53,643.4 | 4,33,925.0 | 4,32,005 | 38,74,420 | 10,00,996.3 | k_pull(int, SynConsts, int, int, const int *, const unsigned char *, const unsigned int *, float *)  |
+|      3.0 |     2,99,72,191 |     1,000 |   29,972.2 |   17,632.0 |   16,960 | 24,56,065 |  1,70,107.7 | k_lif_update(int, NeuronConsts, float *, int *, curandStatePhilox4_32_10 *, float *, unsigned int *… |
+|      0.1 |        5,94,216 |         1 | 5,94,216.0 | 5,94,216.0 | 5,94,216 |  5,94,216 |         0.0 | k_gen_pre(int, int, int, int, int, int, unsigned long long, int *, unsigned char *)                  |
+|      0.0 |          13,280 |         1 |   13,280.0 |   13,280.0 |   13,280 |    13,280 |         0.0 | k_init_state(int, unsigned long long, float, curandStatePhilox4_32_10 *, float *, int *)             |
++----------+-----------------+-----------+------------+------------+----------+-----------+-------------+------------------------------------------------------------------------------------------------------+
+
