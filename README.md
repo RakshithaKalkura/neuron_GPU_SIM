@@ -166,6 +166,7 @@ Time per step (ms), RTX 6000 Ada:
 | `scripts/setup.sh` | One-time setup: venv, packages, GeNN, build, tests |
 | `scripts/run_all.sh` | Runs every experiment and writes `results/` |
 | `scripts/profile.sh` | Nsight profiling of all strategies |
+| `scripts/demo.sh` | Short live demo (~10 s of runtime, pauses between parts) |
 | `scripts/env.sh` | Finds CUDA, Python and ncu (used by the other scripts) |
 
 ## Possible extensions
