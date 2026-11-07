@@ -73,8 +73,10 @@ int main(int argc, char** argv) {
     int warm_steps = (int)lroundf(warmup / p.dt);
     int steps = (int)lroundf(T / p.dt);
 
+    int dev;
     cudaDeviceProp prop;
-    CUDA_CHECK(cudaGetDeviceProperties(&prop, 0));
+    CUDA_CHECK(cudaGetDevice(&dev));
+    CUDA_CHECK(cudaGetDeviceProperties(&prop, dev));
 
     Simulator sim(p, strat, warm_steps + steps, n_rec, opt);
     auto t0 = std::chrono::high_resolution_clock::now();
@@ -117,19 +119,18 @@ int main(int argc, char** argv) {
            sim.network_bytes(), total_b - free_b, prop.name,
            opt.graph_steps, (int)opt.stateless_rng, (int)opt.sort_rows, (int)opt.block_compact);
 
-    if (!out.empty()) {
+    if (!out.empty()) {   // <out>.bin: recorded spikes, <out>_V.bin: final V, <out>_counts.bin: spikes/step
+        auto write = [&](const std::string& path, const void* data, size_t bytes) {
+            FILE* f = fopen(path.c_str(), "wb");
+            if (!f) { perror(path.c_str()); exit(1); }
+            fwrite(data, 1, bytes, f);
+            fclose(f);
+        };
         auto rec = sim.recorded_spikes();
-        FILE* f = fopen((out + ".bin").c_str(), "wb");
-        if (!f) { perror("fopen"); return 1; }
-        fwrite(rec.data(), sizeof(int2), rec.size(), f);
-        fclose(f);
         auto V = sim.voltages();
-        f = fopen((out + "_V.bin").c_str(), "wb");
-        fwrite(V.data(), sizeof(float), V.size(), f);
-        fclose(f);
-        f = fopen((out + "_counts.bin").c_str(), "wb");
-        fwrite(counts.data(), sizeof(int), counts.size(), f);
-        fclose(f);
+        write(out + ".bin", rec.data(), rec.size() * sizeof(int2));
+        write(out + "_V.bin", V.data(), V.size() * sizeof(float));
+        write(out + "_counts.bin", counts.data(), counts.size() * sizeof(int));
     }
     return 0;
 }

@@ -1,11 +1,11 @@
-[17:31:56] >>> build
+[18:01:34] >>> build
 make: Nothing to be done for 'all'.
-[17:31:56] <<< build: exit=0, 0 s, kernel errors so far: 0
-[17:31:56] >>> tests
+[18:01:34] <<< build: exit=0, 0 s, kernel errors so far: 0
+[18:01:34] >>> tests
 [delay tests]
 [equivalence tests]
   equivalence pull vs naive (delay 1.5-1.5 ms): max|dV| = 9.54e-07 (max|V| = 15.3)
-  equivalence pull vs push  (delay 1.5-1.5 ms): max|dV| = 9.54e-07 (max|V| = 15.3)
+  equivalence pull vs push  (delay 1.5-1.5 ms): max|dV| = 1.43e-06 (max|V| = 15.3)
   equivalence pull vs naive (delay 0.1-3.0 ms): max|dV| = 9.54e-07 (max|V| = 12.4)
   equivalence pull vs push  (delay 0.1-3.0 ms): max|dV| = 9.54e-07 (max|V| = 12.4)
   equivalence pull vs naive +opt (delay 1.5-1.5 ms): max|dV| = 9.54e-07 (max|V| = 12)
@@ -13,256 +13,254 @@ make: Nothing to be done for 'all'.
   equivalence pull vs naive +opt (delay 0.1-3.0 ms): max|dV| = 9.54e-07 (max|V| = 12)
   equivalence pull vs push  +opt (delay 0.1-3.0 ms): max|dV| = 9.54e-07 (max|V| = 12)
 ALL TESTS PASSED
-[17:31:56] <<< tests: exit=0, 0 s, kernel errors so far: 0
-[17:31:56] >>> validate: GPU push
-{"strategy":"push","N":12500,"K":1000,"M":12500000,"dt":0.1,"T_ms":1000,"steps":10000,"J":0.1,"g":5,"eta":2,"d_min":1.5,"d_max":1.5,"fixed_rate":-1,"seed":1234,"build_s":0.0112,"sim_s":0.161787,"ms_per_step":0.016179,"rate_hz":43.5546,"spikes":544433,"syn_events":5.44433e+08,"events_per_s":3.36512e+09,"realtime_factor":0.1618,"net_bytes":50100008,"gpu_mem_used":864354304,"gpu":"NVIDIA GeForce RTX 4090","opt_graph":0,"opt_stateless_rng":0,"opt_sort_rows":0,"opt_block_compact":0}
-[17:31:57] <<< validate: GPU push: exit=0, 1 s, kernel errors so far: 0
-[17:31:57] >>> validate: GPU pull
-{"strategy":"pull","N":12500,"K":1000,"M":12500000,"dt":0.1,"T_ms":1000,"steps":10000,"J":0.1,"g":5,"eta":2,"d_min":1.5,"d_max":1.5,"fixed_rate":-1,"seed":1234,"build_s":0.0016,"sim_s":0.578926,"ms_per_step":0.057893,"rate_hz":43.3094,"spikes":541368,"syn_events":5.41368e+08,"events_per_s":9.35125e+08,"realtime_factor":0.5789,"net_bytes":50000000,"gpu_mem_used":864354304,"gpu":"NVIDIA GeForce RTX 4090","opt_graph":0,"opt_stateless_rng":0,"opt_sort_rows":0,"opt_block_compact":0}
-[17:31:57] <<< validate: GPU pull: exit=0, 0 s, kernel errors so far: 0
-[17:31:57] >>> validate: Brian2
-/home/user/gpu_sim_neuro/.venv/lib/python3.10/site-packages/setuptools/_distutils/_msvccompiler.py:12: UserWarning: _get_vc_env is private; find an alternative (pypa/distutils#340)
-  warnings.warn(
-{"strategy": "brian2-cython", "N": 12500, "K": 1000, "T_ms": 1000.0, "sim_s": 4.914805889129639, "realtime_factor": 4.914805889129639, "rate_hz": 43.148}
-[17:32:03] <<< validate: Brian2: exit=0, 6 s, kernel errors so far: 1
-[17:32:04] >>> sweep: rate
+[18:01:34] <<< tests: exit=0, 0 s, kernel errors so far: 0
+[18:01:34] >>> validate: GPU push
+{"strategy":"push","N":12500,"K":1000,"M":12500000,"dt":0.1,"T_ms":1000,"steps":10000,"J":0.1,"g":5,"eta":2,"d_min":1.5,"d_max":1.5,"fixed_rate":-1,"seed":1234,"build_s":0.0046,"sim_s":0.158360,"ms_per_step":0.015836,"rate_hz":43.2833,"spikes":541041,"syn_events":5.41041e+08,"events_per_s":3.41654e+09,"realtime_factor":0.1584,"net_bytes":50100008,"gpu_mem_used":5720899584,"gpu":"NVIDIA RTX 6000 Ada Generation","opt_graph":0,"opt_stateless_rng":0,"opt_sort_rows":0,"opt_block_compact":0}
+[18:01:34] <<< validate: GPU push: exit=0, 0 s, kernel errors so far: 0
+[18:01:34] >>> validate: GPU pull
+{"strategy":"pull","N":12500,"K":1000,"M":12500000,"dt":0.1,"T_ms":1000,"steps":10000,"J":0.1,"g":5,"eta":2,"d_min":1.5,"d_max":1.5,"fixed_rate":-1,"seed":1234,"build_s":0.0043,"sim_s":0.666884,"ms_per_step":0.066688,"rate_hz":43.3094,"spikes":541368,"syn_events":5.41368e+08,"events_per_s":8.11787e+08,"realtime_factor":0.6669,"net_bytes":50000000,"gpu_mem_used":5720899584,"gpu":"NVIDIA RTX 6000 Ada Generation","opt_graph":0,"opt_stateless_rng":0,"opt_sort_rows":0,"opt_block_compact":0}
+[18:01:35] <<< validate: GPU pull: exit=0, 1 s, kernel errors so far: 0
+[18:01:35] >>> validate: Brian2
+{"strategy": "brian2-cython", "N": 12500, "K": 1000, "T_ms": 1000.0, "sim_s": 25.251543521881104, "realtime_factor": 25.251543521881104, "rate_hz": 43.148}
+[18:02:06] <<< validate: Brian2: exit=0, 31 s, kernel errors so far: 0
+[18:02:06] >>> sweep: rate
 ===== rate
-       naive N=  100000 K= 1000 rate=    0.5Hz ms/step=0.0766
-        push N=  100000 K= 1000 rate=    0.5Hz ms/step=0.0234
-        pull N=  100000 K= 1000 rate=    0.5Hz ms/step=0.4546
-    push-opt N=  100000 K= 1000 rate=   0.49Hz ms/step=0.0117
-    pull-opt N=  100000 K= 1000 rate=   0.49Hz ms/step=0.4294
-       naive N=  100000 K= 1000 rate=    1.0Hz ms/step=0.0860
-        push N=  100000 K= 1000 rate=    1.0Hz ms/step=0.0238
-        pull N=  100000 K= 1000 rate=    1.0Hz ms/step=0.4546
-    push-opt N=  100000 K= 1000 rate=   0.99Hz ms/step=0.0121
-    pull-opt N=  100000 K= 1000 rate=   0.99Hz ms/step=0.4294
-       naive N=  100000 K= 1000 rate=    2.0Hz ms/step=0.0957
-        push N=  100000 K= 1000 rate=    2.0Hz ms/step=0.0248
-        pull N=  100000 K= 1000 rate=    2.0Hz ms/step=0.4546
-    push-opt N=  100000 K= 1000 rate=   1.99Hz ms/step=0.0131
-    pull-opt N=  100000 K= 1000 rate=   1.99Hz ms/step=0.4294
-       naive N=  100000 K= 1000 rate=   5.01Hz ms/step=0.1061
-        push N=  100000 K= 1000 rate=   5.01Hz ms/step=0.0258
-        pull N=  100000 K= 1000 rate=   5.01Hz ms/step=0.4545
-    push-opt N=  100000 K= 1000 rate=   4.99Hz ms/step=0.0142
-    pull-opt N=  100000 K= 1000 rate=   4.99Hz ms/step=0.4295
-       naive N=  100000 K= 1000 rate=   10.0Hz ms/step=0.1093
-        push N=  100000 K= 1000 rate=   10.0Hz ms/step=0.0260
-        pull N=  100000 K= 1000 rate=   10.0Hz ms/step=0.4546
-    push-opt N=  100000 K= 1000 rate=   9.99Hz ms/step=0.0144
-    pull-opt N=  100000 K= 1000 rate=   9.99Hz ms/step=0.4295
-       naive N=  100000 K= 1000 rate=  19.99Hz ms/step=0.1255
-        push N=  100000 K= 1000 rate=  19.99Hz ms/step=0.0262
-        pull N=  100000 K= 1000 rate=  19.99Hz ms/step=0.4546
-    push-opt N=  100000 K= 1000 rate=  19.99Hz ms/step=0.0145
-    pull-opt N=  100000 K= 1000 rate=  19.99Hz ms/step=0.4295
-       naive N=  100000 K= 1000 rate=  49.99Hz ms/step=0.2771
-        push N=  100000 K= 1000 rate=  49.99Hz ms/step=0.0269
-        pull N=  100000 K= 1000 rate=  49.99Hz ms/step=0.4546
-    push-opt N=  100000 K= 1000 rate=  49.97Hz ms/step=0.0148
-    pull-opt N=  100000 K= 1000 rate=  49.97Hz ms/step=0.4297
-       naive N=  100000 K= 1000 rate=  99.97Hz ms/step=0.4085
-        push N=  100000 K= 1000 rate=  99.97Hz ms/step=0.0373
-        pull N=  100000 K= 1000 rate=  99.97Hz ms/step=0.4547
-    push-opt N=  100000 K= 1000 rate=  99.95Hz ms/step=0.0239
-    pull-opt N=  100000 K= 1000 rate=  99.95Hz ms/step=0.4299
-       naive N=  100000 K= 1000 rate=  199.9Hz ms/step=0.4112
-        push N=  100000 K= 1000 rate=  199.9Hz ms/step=0.0565
-        pull N=  100000 K= 1000 rate=  199.9Hz ms/step=0.4549
-    push-opt N=  100000 K= 1000 rate= 199.91Hz ms/step=0.0434
-    pull-opt N=  100000 K= 1000 rate= 199.91Hz ms/step=0.4302
-[17:33:33] <<< sweep: rate: exit=0, 89 s, kernel errors so far: 1
-[17:33:33] >>> sweep: indegree
+       naive N=  100000 K= 1000 rate=    0.5Hz ms/step=0.0815
+        push N=  100000 K= 1000 rate=    0.5Hz ms/step=0.0236
+        pull N=  100000 K= 1000 rate=    0.5Hz ms/step=0.5435
+    push-opt N=  100000 K= 1000 rate=   0.49Hz ms/step=0.0121
+    pull-opt N=  100000 K= 1000 rate=   0.49Hz ms/step=0.5239
+       naive N=  100000 K= 1000 rate=    1.0Hz ms/step=0.0868
+        push N=  100000 K= 1000 rate=    1.0Hz ms/step=0.0241
+        pull N=  100000 K= 1000 rate=    1.0Hz ms/step=0.5430
+    push-opt N=  100000 K= 1000 rate=   0.99Hz ms/step=0.0126
+    pull-opt N=  100000 K= 1000 rate=   0.99Hz ms/step=0.5222
+       naive N=  100000 K= 1000 rate=    2.0Hz ms/step=0.1041
+        push N=  100000 K= 1000 rate=    2.0Hz ms/step=0.0223
+        pull N=  100000 K= 1000 rate=    2.0Hz ms/step=0.5558
+    push-opt N=  100000 K= 1000 rate=   1.99Hz ms/step=0.0136
+    pull-opt N=  100000 K= 1000 rate=   1.99Hz ms/step=0.5224
+       naive N=  100000 K= 1000 rate=   5.01Hz ms/step=0.1205
+        push N=  100000 K= 1000 rate=   5.01Hz ms/step=0.0260
+        pull N=  100000 K= 1000 rate=   5.01Hz ms/step=0.5440
+    push-opt N=  100000 K= 1000 rate=   4.99Hz ms/step=0.0146
+    pull-opt N=  100000 K= 1000 rate=   4.99Hz ms/step=0.5276
+       naive N=  100000 K= 1000 rate=   10.0Hz ms/step=0.1208
+        push N=  100000 K= 1000 rate=   10.0Hz ms/step=0.0235
+        pull N=  100000 K= 1000 rate=   10.0Hz ms/step=0.5437
+    push-opt N=  100000 K= 1000 rate=   9.99Hz ms/step=0.0163
+    pull-opt N=  100000 K= 1000 rate=   9.99Hz ms/step=0.5215
+       naive N=  100000 K= 1000 rate=  19.99Hz ms/step=0.1278
+        push N=  100000 K= 1000 rate=  19.99Hz ms/step=0.0237
+        pull N=  100000 K= 1000 rate=  19.99Hz ms/step=0.5502
+    push-opt N=  100000 K= 1000 rate=  19.99Hz ms/step=0.0149
+    pull-opt N=  100000 K= 1000 rate=  19.99Hz ms/step=0.5201
+       naive N=  100000 K= 1000 rate=  49.99Hz ms/step=0.2946
+        push N=  100000 K= 1000 rate=  49.99Hz ms/step=0.0241
+        pull N=  100000 K= 1000 rate=  49.99Hz ms/step=0.5493
+    push-opt N=  100000 K= 1000 rate=  49.97Hz ms/step=0.0173
+    pull-opt N=  100000 K= 1000 rate=  49.97Hz ms/step=0.5213
+       naive N=  100000 K= 1000 rate=  99.97Hz ms/step=0.4416
+        push N=  100000 K= 1000 rate=  99.97Hz ms/step=0.0311
+        pull N=  100000 K= 1000 rate=  99.97Hz ms/step=0.5452
+    push-opt N=  100000 K= 1000 rate=  99.95Hz ms/step=0.0205
+    pull-opt N=  100000 K= 1000 rate=  99.95Hz ms/step=0.5231
+       naive N=  100000 K= 1000 rate=  199.9Hz ms/step=0.4460
+        push N=  100000 K= 1000 rate=  199.9Hz ms/step=0.0486
+        pull N=  100000 K= 1000 rate=  199.9Hz ms/step=0.5522
+    push-opt N=  100000 K= 1000 rate= 199.91Hz ms/step=0.0381
+    pull-opt N=  100000 K= 1000 rate= 199.91Hz ms/step=0.5245
+[18:03:33] <<< sweep: rate: exit=0, 87 s, kernel errors so far: 0
+[18:03:33] >>> sweep: indegree
 ===== indegree
-       naive N=   50000 K=  100 rate=   4.98Hz ms/step=0.0137
-        push N=   50000 K=  100 rate=   4.98Hz ms/step=0.0095
-        pull N=   50000 K=  100 rate=   4.98Hz ms/step=0.0161
-    push-opt N=   50000 K=  100 rate=   4.99Hz ms/step=0.0041
-    pull-opt N=   50000 K=  100 rate=   4.99Hz ms/step=0.0107
-       naive N=   50000 K=  100 rate=  49.95Hz ms/step=0.0220
-        push N=   50000 K=  100 rate=  49.95Hz ms/step=0.0097
-        pull N=   50000 K=  100 rate=  49.95Hz ms/step=0.0162
-    push-opt N=   50000 K=  100 rate=  49.91Hz ms/step=0.0043
-    pull-opt N=   50000 K=  100 rate=  49.91Hz ms/step=0.0108
-       naive N=   50000 K=  250 rate=   4.98Hz ms/step=0.0255
-        push N=   50000 K=  250 rate=   4.98Hz ms/step=0.0111
-        pull N=   50000 K=  250 rate=   4.98Hz ms/step=0.0261
-    push-opt N=   50000 K=  250 rate=   4.99Hz ms/step=0.0057
-    pull-opt N=   50000 K=  250 rate=   4.99Hz ms/step=0.0207
-       naive N=   50000 K=  250 rate=  49.95Hz ms/step=0.0413
-        push N=   50000 K=  250 rate=  49.95Hz ms/step=0.0113
-        pull N=   50000 K=  250 rate=  49.95Hz ms/step=0.0263
-    push-opt N=   50000 K=  250 rate=  49.91Hz ms/step=0.0059
-    pull-opt N=   50000 K=  250 rate=  49.91Hz ms/step=0.0208
-       naive N=   50000 K=  500 rate=   4.98Hz ms/step=0.0477
-        push N=   50000 K=  500 rate=   4.98Hz ms/step=0.0138
-        pull N=   50000 K=  500 rate=   4.98Hz ms/step=0.1267
-    push-opt N=   50000 K=  500 rate=   4.99Hz ms/step=0.0083
-    pull-opt N=   50000 K=  500 rate=   4.99Hz ms/step=0.1142
-       naive N=   50000 K=  500 rate=  49.95Hz ms/step=0.0740
-        push N=   50000 K=  500 rate=  49.95Hz ms/step=0.0147
-        pull N=   50000 K=  500 rate=  49.95Hz ms/step=0.1261
-    push-opt N=   50000 K=  500 rate=  49.91Hz ms/step=0.0093
-    pull-opt N=   50000 K=  500 rate=  49.91Hz ms/step=0.1142
-       naive N=   50000 K= 1000 rate=   4.98Hz ms/step=0.0913
-        push N=   50000 K= 1000 rate=   4.98Hz ms/step=0.0190
-        pull N=   50000 K= 1000 rate=   4.98Hz ms/step=0.2330
-    push-opt N=   50000 K= 1000 rate=   4.99Hz ms/step=0.0136
-    pull-opt N=   50000 K= 1000 rate=   4.99Hz ms/step=0.2224
-       naive N=   50000 K= 1000 rate=  49.95Hz ms/step=0.1394
-        push N=   50000 K= 1000 rate=  49.95Hz ms/step=0.0203
-        pull N=   50000 K= 1000 rate=  49.95Hz ms/step=0.2331
-    push-opt N=   50000 K= 1000 rate=  49.91Hz ms/step=0.0147
-    pull-opt N=   50000 K= 1000 rate=  49.91Hz ms/step=0.2224
-       naive N=   50000 K= 2000 rate=   4.98Hz ms/step=0.1740
-        push N=   50000 K= 2000 rate=   4.98Hz ms/step=0.0288
-        pull N=   50000 K= 2000 rate=   4.98Hz ms/step=0.4545
-    push-opt N=   50000 K= 2000 rate=   4.99Hz ms/step=0.0234
-    pull-opt N=   50000 K= 2000 rate=   4.99Hz ms/step=0.4442
-       naive N=   50000 K= 2000 rate=  49.95Hz ms/step=0.2693
-        push N=   50000 K= 2000 rate=  49.95Hz ms/step=0.0308
-        pull N=   50000 K= 2000 rate=  49.95Hz ms/step=0.4546
-    push-opt N=   50000 K= 2000 rate=  49.91Hz ms/step=0.0250
-    pull-opt N=   50000 K= 2000 rate=  49.91Hz ms/step=0.4442
-       naive N=   50000 K= 5000 rate=   4.98Hz ms/step=0.4211
-        push N=   50000 K= 5000 rate=   4.98Hz ms/step=0.0578
-        pull N=   50000 K= 5000 rate=   4.98Hz ms/step=1.1555
-    push-opt N=   50000 K= 5000 rate=   4.99Hz ms/step=0.0524
-    pull-opt N=   50000 K= 5000 rate=   4.99Hz ms/step=1.1457
-       naive N=   50000 K= 5000 rate=  49.95Hz ms/step=0.6575
-        push N=   50000 K= 5000 rate=  49.95Hz ms/step=0.0624
-        pull N=   50000 K= 5000 rate=  49.95Hz ms/step=1.1557
-    push-opt N=   50000 K= 5000 rate=  49.91Hz ms/step=0.0572
-    pull-opt N=   50000 K= 5000 rate=  49.91Hz ms/step=1.1458
-[17:35:14] <<< sweep: indegree: exit=0, 101 s, kernel errors so far: 1
-[17:35:15] >>> sweep: size
+       naive N=   50000 K=  100 rate=   4.98Hz ms/step=0.0123
+        push N=   50000 K=  100 rate=   4.98Hz ms/step=0.0103
+        pull N=   50000 K=  100 rate=   4.98Hz ms/step=0.0147
+    push-opt N=   50000 K=  100 rate=   4.99Hz ms/step=0.0047
+    pull-opt N=   50000 K=  100 rate=   4.99Hz ms/step=0.0113
+       naive N=   50000 K=  100 rate=  49.95Hz ms/step=0.0202
+        push N=   50000 K=  100 rate=  49.95Hz ms/step=0.0102
+        pull N=   50000 K=  100 rate=  49.95Hz ms/step=0.0148
+    push-opt N=   50000 K=  100 rate=  49.91Hz ms/step=0.0046
+    pull-opt N=   50000 K=  100 rate=  49.91Hz ms/step=0.0110
+       naive N=   50000 K=  250 rate=   4.98Hz ms/step=0.0200
+        push N=   50000 K=  250 rate=   4.98Hz ms/step=0.0095
+        pull N=   50000 K=  250 rate=   4.98Hz ms/step=0.0252
+    push-opt N=   50000 K=  250 rate=   4.99Hz ms/step=0.0058
+    pull-opt N=   50000 K=  250 rate=   4.99Hz ms/step=0.0216
+       naive N=   50000 K=  250 rate=  49.95Hz ms/step=0.0432
+        push N=   50000 K=  250 rate=  49.95Hz ms/step=0.0099
+        pull N=   50000 K=  250 rate=  49.95Hz ms/step=0.0288
+    push-opt N=   50000 K=  250 rate=  49.91Hz ms/step=0.0061
+    pull-opt N=   50000 K=  250 rate=  49.91Hz ms/step=0.0243
+       naive N=   50000 K=  500 rate=   4.98Hz ms/step=0.0449
+        push N=   50000 K=  500 rate=   4.98Hz ms/step=0.0125
+        pull N=   50000 K=  500 rate=   4.98Hz ms/step=0.0682
+    push-opt N=   50000 K=  500 rate=   4.99Hz ms/step=0.0086
+    pull-opt N=   50000 K=  500 rate=   4.99Hz ms/step=0.0512
+       naive N=   50000 K=  500 rate=  49.95Hz ms/step=0.0787
+        push N=   50000 K=  500 rate=  49.95Hz ms/step=0.0135
+        pull N=   50000 K=  500 rate=  49.95Hz ms/step=0.0778
+    push-opt N=   50000 K=  500 rate=  49.91Hz ms/step=0.0096
+    pull-opt N=   50000 K=  500 rate=  49.91Hz ms/step=0.0546
+       naive N=   50000 K= 1000 rate=   4.98Hz ms/step=0.0920
+        push N=   50000 K= 1000 rate=   4.98Hz ms/step=0.0176
+        pull N=   50000 K= 1000 rate=   4.98Hz ms/step=0.2705
+    push-opt N=   50000 K= 1000 rate=   4.99Hz ms/step=0.0142
+    pull-opt N=   50000 K= 1000 rate=   4.99Hz ms/step=0.2613
+       naive N=   50000 K= 1000 rate=  49.95Hz ms/step=0.1525
+        push N=   50000 K= 1000 rate=  49.95Hz ms/step=0.0208
+        pull N=   50000 K= 1000 rate=  49.95Hz ms/step=0.2711
+    push-opt N=   50000 K= 1000 rate=  49.91Hz ms/step=0.0173
+    pull-opt N=   50000 K= 1000 rate=  49.91Hz ms/step=0.2630
+       naive N=   50000 K= 2000 rate=   4.98Hz ms/step=0.1927
+        push N=   50000 K= 2000 rate=   4.98Hz ms/step=0.0316
+        pull N=   50000 K= 2000 rate=   4.98Hz ms/step=0.5394
+    push-opt N=   50000 K= 2000 rate=   4.99Hz ms/step=0.0241
+    pull-opt N=   50000 K= 2000 rate=   4.99Hz ms/step=0.5374
+       naive N=   50000 K= 2000 rate=  49.95Hz ms/step=0.2855
+        push N=   50000 K= 2000 rate=  49.95Hz ms/step=0.0295
+        pull N=   50000 K= 2000 rate=  49.95Hz ms/step=0.5400
+    push-opt N=   50000 K= 2000 rate=  49.91Hz ms/step=0.0257
+    pull-opt N=   50000 K= 2000 rate=  49.91Hz ms/step=0.5311
+       naive N=   50000 K= 5000 rate=   4.98Hz ms/step=0.4850
+        push N=   50000 K= 5000 rate=   4.98Hz ms/step=0.0630
+        pull N=   50000 K= 5000 rate=   4.98Hz ms/step=1.4070
+    push-opt N=   50000 K= 5000 rate=   4.99Hz ms/step=0.0534
+    pull-opt N=   50000 K= 5000 rate=   4.99Hz ms/step=1.4021
+       naive N=   50000 K= 5000 rate=  49.95Hz ms/step=0.7024
+        push N=   50000 K= 5000 rate=  49.95Hz ms/step=0.0603
+        pull N=   50000 K= 5000 rate=  49.95Hz ms/step=1.4019
+    push-opt N=   50000 K= 5000 rate=  49.91Hz ms/step=0.0570
+    pull-opt N=   50000 K= 5000 rate=  49.91Hz ms/step=1.4014
+[18:05:06] <<< sweep: indegree: exit=0, 93 s, kernel errors so far: 0
+[18:05:06] >>> sweep: size
 ===== size
-       naive N=   12500 K= 1000 rate=  43.37Hz ms/step=0.0589
-        push N=   12500 K= 1000 rate=  43.37Hz ms/step=0.0163
-        pull N=   12500 K= 1000 rate=  43.32Hz ms/step=0.0582
-    push-opt N=   12500 K= 1000 rate=  43.12Hz ms/step=0.0141
-    pull-opt N=   12500 K= 1000 rate=  43.14Hz ms/step=0.0560
-       naive N=   25000 K= 1000 rate=  43.01Hz ms/step=0.1026
-        push N=   25000 K= 1000 rate=   42.8Hz ms/step=0.0182
-        pull N=   25000 K= 1000 rate=  43.01Hz ms/step=0.1400
-    push-opt N=   25000 K= 1000 rate=  42.98Hz ms/step=0.0149
-    pull-opt N=   25000 K= 1000 rate=   42.8Hz ms/step=0.1326
-       naive N=   50000 K= 1000 rate=  42.69Hz ms/step=0.1300
-        push N=   50000 K= 1000 rate=  42.57Hz ms/step=0.0204
-        pull N=   50000 K= 1000 rate=   42.8Hz ms/step=0.2332
-    push-opt N=   50000 K= 1000 rate=  42.65Hz ms/step=0.0148
-    pull-opt N=   50000 K= 1000 rate=  42.74Hz ms/step=0.2230
-       naive N=  100000 K= 1000 rate=  42.71Hz ms/step=0.2381
-        push N=  100000 K= 1000 rate=  42.84Hz ms/step=0.0248
-        pull N=  100000 K= 1000 rate=  42.86Hz ms/step=0.4554
-    push-opt N=  100000 K= 1000 rate=  42.78Hz ms/step=0.0154
-    pull-opt N=  100000 K= 1000 rate=  42.72Hz ms/step=0.4302
-       naive N=  200000 K= 1000 rate=  42.77Hz ms/step=0.4148
-        push N=  200000 K= 1000 rate=  42.72Hz ms/step=0.0490
-        pull N=  200000 K= 1000 rate=  42.69Hz ms/step=0.9848
-    push-opt N=  200000 K= 1000 rate=  42.62Hz ms/step=0.0246
-    pull-opt N=  200000 K= 1000 rate=  42.61Hz ms/step=0.9418
-       naive N=  500000 K= 1000 rate=   42.6Hz ms/step=0.4890
-        push N=  500000 K= 1000 rate=  42.64Hz ms/step=0.1375
-        pull N=  500000 K= 1000 rate=  42.63Hz ms/step=2.3017
-    push-opt N=  500000 K= 1000 rate=  42.64Hz ms/step=0.0632
-    pull-opt N=  500000 K= 1000 rate=   42.6Hz ms/step=2.2012
-       naive N= 1000000 K= 1000 rate=  42.65Hz ms/step=0.6426
-        push N= 1000000 K= 1000 rate=  42.65Hz ms/step=0.3369
-        pull N= 1000000 K= 1000 rate=  42.58Hz ms/step=4.9105
-    push-opt N= 1000000 K= 1000 rate=  42.64Hz ms/step=0.1191
-    pull-opt N= 1000000 K= 1000 rate=  42.64Hz ms/step=4.7191
-[17:37:07] <<< sweep: size: exit=0, 112 s, kernel errors so far: 1
-[17:37:07] >>> sweep: dense
+       naive N=   12500 K= 1000 rate=  43.32Hz ms/step=0.0866
+        push N=   12500 K= 1000 rate=  43.67Hz ms/step=0.0183
+        pull N=   12500 K= 1000 rate=  43.32Hz ms/step=0.0673
+    push-opt N=   12500 K= 1000 rate=  43.12Hz ms/step=0.0142
+    pull-opt N=   12500 K= 1000 rate=  43.14Hz ms/step=0.0631
+       naive N=   25000 K= 1000 rate=  43.01Hz ms/step=0.1144
+        push N=   25000 K= 1000 rate=  42.77Hz ms/step=0.0186
+        pull N=   25000 K= 1000 rate=  43.01Hz ms/step=0.0940
+    push-opt N=   25000 K= 1000 rate=  42.98Hz ms/step=0.0170
+    pull-opt N=   25000 K= 1000 rate=   42.8Hz ms/step=0.0743
+       naive N=   50000 K= 1000 rate=  42.72Hz ms/step=0.1441
+        push N=   50000 K= 1000 rate=  42.86Hz ms/step=0.0212
+        pull N=   50000 K= 1000 rate=   42.8Hz ms/step=0.2851
+    push-opt N=   50000 K= 1000 rate=  42.91Hz ms/step=0.0167
+    pull-opt N=   50000 K= 1000 rate=  42.74Hz ms/step=0.2562
+       naive N=  100000 K= 1000 rate=  42.71Hz ms/step=0.2618
+        push N=  100000 K= 1000 rate=  42.69Hz ms/step=0.0244
+        pull N=  100000 K= 1000 rate=  42.86Hz ms/step=0.5551
+    push-opt N=  100000 K= 1000 rate=  42.67Hz ms/step=0.0154
+    pull-opt N=  100000 K= 1000 rate=  42.72Hz ms/step=0.5319
+       naive N=  200000 K= 1000 rate=  42.69Hz ms/step=0.4526
+        push N=  200000 K= 1000 rate=  42.65Hz ms/step=0.0438
+        pull N=  200000 K= 1000 rate=  42.69Hz ms/step=1.1091
+    push-opt N=  200000 K= 1000 rate=  42.56Hz ms/step=0.0244
+    pull-opt N=  200000 K= 1000 rate=  42.61Hz ms/step=1.0657
+       naive N=  500000 K= 1000 rate=  42.65Hz ms/step=0.5108
+        push N=  500000 K= 1000 rate=  42.69Hz ms/step=0.1194
+        pull N=  500000 K= 1000 rate=  42.63Hz ms/step=2.8170
+    push-opt N=  500000 K= 1000 rate=  42.61Hz ms/step=0.0627
+    pull-opt N=  500000 K= 1000 rate=   42.6Hz ms/step=2.6971
+       naive N= 1000000 K= 1000 rate=  42.64Hz ms/step=0.6541
+        push N= 1000000 K= 1000 rate=  42.63Hz ms/step=0.3002
+        pull N= 1000000 K= 1000 rate=  42.58Hz ms/step=5.7377
+    push-opt N= 1000000 K= 1000 rate=  42.68Hz ms/step=0.1144
+    pull-opt N= 1000000 K= 1000 rate=  42.64Hz ms/step=5.5241
+[18:07:11] <<< sweep: size: exit=0, 125 s, kernel errors so far: 0
+[18:07:11] >>> sweep: dense
 ===== dense
- dense-torch N=    2000 K= 1000 rate=  46.85Hz ms/step=0.0965
-        push N=    2000 K= 1000 rate=  46.91Hz ms/step=0.0109
-        pull N=    2000 K= 1000 rate=  46.91Hz ms/step=0.0576
-    push-opt N=    2000 K= 1000 rate=  47.31Hz ms/step=0.0091
-    pull-opt N=    2000 K= 1000 rate=  47.31Hz ms/step=0.0557
- dense-torch N=    5000 K= 1000 rate=  41.98Hz ms/step=0.1851
-        push N=    5000 K= 1000 rate=  43.69Hz ms/step=0.0138
-        pull N=    5000 K= 1000 rate=  43.69Hz ms/step=0.0575
-    push-opt N=    5000 K= 1000 rate=  44.72Hz ms/step=0.0122
-    pull-opt N=    5000 K= 1000 rate=  44.72Hz ms/step=0.0555
- dense-torch N=   10000 K= 1000 rate=  42.66Hz ms/step=0.4844
-        push N=   10000 K= 1000 rate=  43.53Hz ms/step=0.0160
-        pull N=   10000 K= 1000 rate=  43.53Hz ms/step=0.0577
+ dense-torch N=    2000 K= 1000 rate=   43.3Hz ms/step=0.2882
+        push N=    2000 K= 1000 rate=  46.91Hz ms/step=0.0123
+        pull N=    2000 K= 1000 rate=  46.91Hz ms/step=0.0662
+    push-opt N=    2000 K= 1000 rate=  47.31Hz ms/step=0.0093
+    pull-opt N=    2000 K= 1000 rate=  47.31Hz ms/step=0.0558
+ dense-torch N=    5000 K= 1000 rate=  43.96Hz ms/step=0.2749
+        push N=    5000 K= 1000 rate=  43.69Hz ms/step=0.0151
+        pull N=    5000 K= 1000 rate=  43.69Hz ms/step=0.0613
+    push-opt N=    5000 K= 1000 rate=  44.72Hz ms/step=0.0123
+    pull-opt N=    5000 K= 1000 rate=  44.72Hz ms/step=0.0639
+ dense-torch N=   10000 K= 1000 rate=  43.56Hz ms/step=0.6369
+        push N=   10000 K= 1000 rate=  43.53Hz ms/step=0.0175
+        pull N=   10000 K= 1000 rate=  43.53Hz ms/step=0.0656
     push-opt N=   10000 K= 1000 rate=   43.3Hz ms/step=0.0140
-    pull-opt N=   10000 K= 1000 rate=   43.3Hz ms/step=0.0558
- dense-torch N=   12500 K= 1000 rate=  42.53Hz ms/step=0.7199
-        push N=   12500 K= 1000 rate=  43.66Hz ms/step=0.0164
-        pull N=   12500 K= 1000 rate=   43.0Hz ms/step=0.0582
-    push-opt N=   12500 K= 1000 rate=   43.4Hz ms/step=0.0143
-    pull-opt N=   12500 K= 1000 rate=   43.4Hz ms/step=0.0562
- dense-torch N=   20000 K= 1000 rate=  42.48Hz ms/step=1.7397
-        push N=   20000 K= 1000 rate=  42.95Hz ms/step=0.0184
-        pull N=   20000 K= 1000 rate=  42.95Hz ms/step=0.1108
-    push-opt N=   20000 K= 1000 rate=   42.7Hz ms/step=0.0156
-    pull-opt N=   20000 K= 1000 rate=   42.7Hz ms/step=0.0994
-[17:37:25] <<< sweep: dense: exit=0, 18 s, kernel errors so far: 2
-[17:37:25] >>> ablation
-N=12.5k Brunel (43 Hz)   naive baseline             58.9 us/step  (rate 43.4 Hz)
-N=12.5k Brunel (43 Hz)   naive +stateless-rng       57.6 us/step  (rate 43.1 Hz)
-N=12.5k Brunel (43 Hz)   naive +block-compact       59.0 us/step  (rate 43.4 Hz)
-N=12.5k Brunel (43 Hz)   naive +sort-rows           63.0 us/step  (rate 43.3 Hz)
-N=12.5k Brunel (43 Hz)   naive +graph100            57.6 us/step  (rate 43.4 Hz)
-N=12.5k Brunel (43 Hz)   naive all                  60.5 us/step  (rate 43.1 Hz)
-N=12.5k Brunel (43 Hz)   push  baseline             16.2 us/step  (rate 43.3 Hz)
-N=12.5k Brunel (43 Hz)   push  +stateless-rng       15.1 us/step  (rate 43.1 Hz)
-N=12.5k Brunel (43 Hz)   push  +block-compact       16.3 us/step  (rate 43.3 Hz)
-N=12.5k Brunel (43 Hz)   push  +sort-rows           16.9 us/step  (rate 43.5 Hz)
-N=12.5k Brunel (43 Hz)   push  +graph100            15.1 us/step  (rate 43.5 Hz)
-N=12.5k Brunel (43 Hz)   push  all                  14.9 us/step  (rate 43.1 Hz)
-N=12.5k Brunel (43 Hz)   pull  baseline             58.0 us/step  (rate 43.3 Hz)
-N=12.5k Brunel (43 Hz)   pull  +stateless-rng       56.9 us/step  (rate 43.1 Hz)
-N=12.5k Brunel (43 Hz)   pull  +block-compact       58.1 us/step  (rate 43.3 Hz)
-N=12.5k Brunel (43 Hz)   pull  +sort-rows           58.0 us/step  (rate 43.3 Hz)
-N=12.5k Brunel (43 Hz)   pull  +graph100            56.9 us/step  (rate 43.3 Hz)
-N=12.5k Brunel (43 Hz)   pull  all                  56.0 us/step  (rate 43.1 Hz)
-N=100k fixed 20 Hz       naive baseline            125.7 us/step  (rate 20.0 Hz)
-N=100k fixed 20 Hz       naive +stateless-rng      115.5 us/step  (rate 20.0 Hz)
-N=100k fixed 20 Hz       naive +block-compact      125.7 us/step  (rate 20.0 Hz)
-N=100k fixed 20 Hz       naive +sort-rows          133.8 us/step  (rate 20.0 Hz)
-N=100k fixed 20 Hz       naive +graph100           124.6 us/step  (rate 20.0 Hz)
-N=100k fixed 20 Hz       naive all                 122.2 us/step  (rate 20.0 Hz)
-N=100k fixed 20 Hz       push  baseline             26.2 us/step  (rate 20.0 Hz)
-N=100k fixed 20 Hz       push  +stateless-rng       15.9 us/step  (rate 20.0 Hz)
-N=100k fixed 20 Hz       push  +block-compact       26.2 us/step  (rate 20.0 Hz)
-N=100k fixed 20 Hz       push  +sort-rows           28.6 us/step  (rate 20.0 Hz)
-N=100k fixed 20 Hz       push  +graph100            25.1 us/step  (rate 20.0 Hz)
-N=100k fixed 20 Hz       push  all                  17.1 us/step  (rate 20.0 Hz)
-N=100k fixed 20 Hz       pull  baseline            454.8 us/step  (rate 20.0 Hz)
-N=100k fixed 20 Hz       pull  +stateless-rng      432.9 us/step  (rate 20.0 Hz)
-N=100k fixed 20 Hz       pull  +block-compact      454.9 us/step  (rate 20.0 Hz)
-N=100k fixed 20 Hz       pull  +sort-rows          454.8 us/step  (rate 20.0 Hz)
-N=100k fixed 20 Hz       pull  +graph100           452.4 us/step  (rate 20.0 Hz)
-N=100k fixed 20 Hz       pull  all                 429.7 us/step  (rate 20.0 Hz)
+    pull-opt N=   10000 K= 1000 rate=   43.3Hz ms/step=0.0669
+ dense-torch N=   12500 K= 1000 rate=  42.05Hz ms/step=0.9149
+        push N=   12500 K= 1000 rate=   43.0Hz ms/step=0.0240
+        pull N=   12500 K= 1000 rate=   43.0Hz ms/step=0.0661
+    push-opt N=   12500 K= 1000 rate=   43.4Hz ms/step=0.0173
+    pull-opt N=   12500 K= 1000 rate=   43.4Hz ms/step=0.0655
+ dense-torch N=   20000 K= 1000 rate=  42.35Hz ms/step=2.1747
+        push N=   20000 K= 1000 rate=  42.95Hz ms/step=0.0167
+        pull N=   20000 K= 1000 rate=  42.95Hz ms/step=0.0684
+    push-opt N=   20000 K= 1000 rate=   42.7Hz ms/step=0.0171
+    pull-opt N=   20000 K= 1000 rate=   42.7Hz ms/step=0.0676
+[18:07:32] <<< sweep: dense: exit=0, 21 s, kernel errors so far: 0
+[18:07:32] >>> ablation
+N=12.5k Brunel (43 Hz)   naive baseline             98.9 us/step  (rate 43.3 Hz)
+N=12.5k Brunel (43 Hz)   naive +stateless-rng       89.9 us/step  (rate 43.2 Hz)
+N=12.5k Brunel (43 Hz)   naive +block-compact       88.5 us/step  (rate 43.3 Hz)
+N=12.5k Brunel (43 Hz)   naive +sort-rows          101.2 us/step  (rate 43.5 Hz)
+N=12.5k Brunel (43 Hz)   naive +graph100            96.7 us/step  (rate 43.4 Hz)
+N=12.5k Brunel (43 Hz)   naive all                  94.3 us/step  (rate 43.1 Hz)
+N=12.5k Brunel (43 Hz)   push  baseline             19.1 us/step  (rate 43.3 Hz)
+N=12.5k Brunel (43 Hz)   push  +stateless-rng       17.8 us/step  (rate 43.1 Hz)
+N=12.5k Brunel (43 Hz)   push  +block-compact       18.6 us/step  (rate 43.7 Hz)
+N=12.5k Brunel (43 Hz)   push  +sort-rows           19.7 us/step  (rate 43.3 Hz)
+N=12.5k Brunel (43 Hz)   push  +graph100            17.9 us/step  (rate 43.4 Hz)
+N=12.5k Brunel (43 Hz)   push  all                  17.1 us/step  (rate 43.1 Hz)
+N=12.5k Brunel (43 Hz)   pull  baseline             66.5 us/step  (rate 43.3 Hz)
+N=12.5k Brunel (43 Hz)   pull  +stateless-rng       66.3 us/step  (rate 43.1 Hz)
+N=12.5k Brunel (43 Hz)   pull  +block-compact       64.1 us/step  (rate 43.3 Hz)
+N=12.5k Brunel (43 Hz)   pull  +sort-rows           61.8 us/step  (rate 43.3 Hz)
+N=12.5k Brunel (43 Hz)   pull  +graph100            65.4 us/step  (rate 43.3 Hz)
+N=12.5k Brunel (43 Hz)   pull  all                  64.6 us/step  (rate 43.1 Hz)
+N=100k fixed 20 Hz       naive baseline            144.4 us/step  (rate 20.0 Hz)
+N=100k fixed 20 Hz       naive +stateless-rng      131.7 us/step  (rate 20.0 Hz)
+N=100k fixed 20 Hz       naive +block-compact      140.7 us/step  (rate 20.0 Hz)
+N=100k fixed 20 Hz       naive +sort-rows          149.8 us/step  (rate 20.0 Hz)
+N=100k fixed 20 Hz       naive +graph100           145.2 us/step  (rate 20.0 Hz)
+N=100k fixed 20 Hz       naive all                 141.3 us/step  (rate 20.0 Hz)
+N=100k fixed 20 Hz       push  baseline             26.8 us/step  (rate 20.0 Hz)
+N=100k fixed 20 Hz       push  +stateless-rng       18.3 us/step  (rate 20.0 Hz)
+N=100k fixed 20 Hz       push  +block-compact       27.4 us/step  (rate 20.0 Hz)
+N=100k fixed 20 Hz       push  +sort-rows           29.6 us/step  (rate 20.0 Hz)
+N=100k fixed 20 Hz       push  +graph100            26.2 us/step  (rate 20.0 Hz)
+N=100k fixed 20 Hz       push  all                  19.1 us/step  (rate 20.0 Hz)
+N=100k fixed 20 Hz       pull  baseline            553.0 us/step  (rate 20.0 Hz)
+N=100k fixed 20 Hz       pull  +stateless-rng      531.4 us/step  (rate 20.0 Hz)
+N=100k fixed 20 Hz       pull  +block-compact      551.4 us/step  (rate 20.0 Hz)
+N=100k fixed 20 Hz       pull  +sort-rows          553.5 us/step  (rate 20.0 Hz)
+N=100k fixed 20 Hz       pull  +graph100           557.0 us/step  (rate 20.0 Hz)
+N=100k fixed 20 Hz       pull  all                 531.7 us/step  (rate 20.0 Hz)
 
 ### N=12.5k Brunel (43 Hz): median us/step (speedup vs baseline)
 
 | config | naive | push | pull |
 |---|---|---|---|
-| baseline | 58.9 (1.00x) | 16.2 (1.00x) | 58.0 (1.00x) |
-| +stateless-rng | 57.6 (1.02x) | 15.1 (1.07x) | 56.9 (1.02x) |
-| +block-compact | 59.0 (1.00x) | 16.3 (0.99x) | 58.1 (1.00x) |
-| +sort-rows | 63.0 (0.94x) | 16.9 (0.96x) | 58.0 (1.00x) |
-| +graph100 | 57.6 (1.02x) | 15.1 (1.07x) | 56.9 (1.02x) |
-| all | 60.5 (0.97x) | 14.9 (1.09x) | 56.0 (1.03x) |
+| baseline | 98.9 (1.00x) | 19.1 (1.00x) | 66.5 (1.00x) |
+| +stateless-rng | 89.9 (1.10x) | 17.8 (1.07x) | 66.3 (1.00x) |
+| +block-compact | 88.5 (1.12x) | 18.6 (1.03x) | 64.1 (1.04x) |
+| +sort-rows | 101.2 (0.98x) | 19.7 (0.97x) | 61.8 (1.08x) |
+| +graph100 | 96.7 (1.02x) | 17.9 (1.06x) | 65.4 (1.02x) |
+| all | 94.3 (1.05x) | 17.1 (1.11x) | 64.6 (1.03x) |
 
 ### N=100k fixed 20 Hz: median us/step (speedup vs baseline)
 
 | config | naive | push | pull |
 |---|---|---|---|
-| baseline | 125.7 (1.00x) | 26.2 (1.00x) | 454.8 (1.00x) |
-| +stateless-rng | 115.5 (1.09x) | 15.9 (1.64x) | 432.9 (1.05x) |
-| +block-compact | 125.7 (1.00x) | 26.2 (1.00x) | 454.9 (1.00x) |
-| +sort-rows | 133.8 (0.94x) | 28.6 (0.91x) | 454.8 (1.00x) |
-| +graph100 | 124.6 (1.01x) | 25.1 (1.04x) | 452.4 (1.01x) |
-| all | 122.2 (1.03x) | 17.1 (1.53x) | 429.7 (1.06x) |
-[17:38:58] <<< ablation: exit=0, 93 s, kernel errors so far: 2
-[17:38:58] >>> profile (Nsight)
+| baseline | 144.4 (1.00x) | 26.8 (1.00x) | 553.0 (1.00x) |
+| +stateless-rng | 131.7 (1.10x) | 18.3 (1.46x) | 531.4 (1.04x) |
+| +block-compact | 140.7 (1.03x) | 27.4 (0.98x) | 551.4 (1.00x) |
+| +sort-rows | 149.8 (0.96x) | 29.6 (0.90x) | 553.5 (1.00x) |
+| +graph100 | 145.2 (0.99x) | 26.2 (1.02x) | 557.0 (0.99x) |
+| all | 141.3 (1.02x) | 19.1 (1.40x) | 531.7 (1.04x) |
+[18:09:02] <<< ablation: exit=0, 90 s, kernel errors so far: 0
+[18:09:02] >>> profile (Nsight)
 === naive: nsys (100 ms simulated)
 WARNING: CPU IP/backtrace sampling not supported, disabling.
 Try the 'nsys status --environment' command to learn more.
@@ -271,13 +269,75 @@ WARNING: CPU context switch tracing not supported, disabling.
 Try the 'nsys status --environment' command to learn more.
 
 === naive: ncu (skip warm-up, profile 3 launches of each kernel)
-scripts/profile.sh: line 15: 11039 Segmentation fault      (core dumped) ncu --set full --import-source yes -f -o "$OUT/ncu_$V" --kernel-name regex:"k_lif_update|k_push|k_pull" --launch-skip 400 --launch-count 6 ./build/snn --strategy $S $EXTRA $ARGS --T 30 > /dev/null
-[17:39:03] <<< profile (Nsight): exit=139, 5 s, kernel errors so far: 3
-[17:39:03] >>> validate: GeNN
-Segmentation fault (core dumped)
-terminate called after throwing an instance of 'std::runtime_error'
-  what():  optimizeBlockSize: NVCC failed
-timeout: the monitored command dumped core
-[17:39:07] <<< validate: GeNN: exit=134, 4 s, kernel errors so far: 4
-[17:39:07] >>> sweep: GeNN
+ncu skipped: profiling counters are admin-only on this machine (RmProfilingAdminOnly=1)
+=== push: nsys (100 ms simulated)
+WARNING: CPU IP/backtrace sampling not supported, disabling.
+Try the 'nsys status --environment' command to learn more.
+
+WARNING: CPU context switch tracing not supported, disabling.
+Try the 'nsys status --environment' command to learn more.
+
+=== push: ncu (skip warm-up, profile 3 launches of each kernel)
+ncu skipped: profiling counters are admin-only on this machine (RmProfilingAdminOnly=1)
+=== pull: nsys (100 ms simulated)
+WARNING: CPU IP/backtrace sampling not supported, disabling.
+Try the 'nsys status --environment' command to learn more.
+
+WARNING: CPU context switch tracing not supported, disabling.
+Try the 'nsys status --environment' command to learn more.
+
+=== pull: ncu (skip warm-up, profile 3 launches of each kernel)
+ncu skipped: profiling counters are admin-only on this machine (RmProfilingAdminOnly=1)
+=== push-opt: nsys (100 ms simulated)
+WARNING: CPU IP/backtrace sampling not supported, disabling.
+Try the 'nsys status --environment' command to learn more.
+
+WARNING: CPU context switch tracing not supported, disabling.
+Try the 'nsys status --environment' command to learn more.
+
+=== push-opt: ncu (skip warm-up, profile 3 launches of each kernel)
+ncu skipped: profiling counters are admin-only on this machine (RmProfilingAdminOnly=1)
+### Nsight Systems: median kernel time per step (us)
+
+| strategy | k_lif_update | delivery kernel | delivery | total/step |
+|---|---|---|---|---|
+| naive | 10.3 | k_push_naive | 112.5 | 122.8 |
+| push | 11.1 | k_push_warp | 13.5 | 24.5 |
+| pull | 16.3 | k_pull | 465.7 | 482.0 |
+| push-opt | 2.0 | k_push_warp | 13.5 | 15.6 |
+
+### Nsight Compute: per-kernel metrics (avg over profiled launches)
+
+| strategy | kernel | time (us) | mem SOL % | SM SOL % | DRAM rd MB | DRAM wr MB | L2 hit % | L1 hit % | occupancy % | atomic reqs | sectors/load req |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+[18:09:13] <<< profile (Nsight): exit=0, 11 s, kernel errors so far: 0
+[18:09:13] >>> validate: GeNN
+make: Entering directory '/home/test/rakshitha/neuron_GPU_SIM/build/genn_postsynaptic/brunel_genn_CODE'
+make: Leaving directory '/home/test/rakshitha/neuron_GPU_SIM/build/genn_postsynaptic/brunel_genn_CODE'
+{"strategy": "genn-postsynaptic", "N": 12500, "K": 1000, "M": 12500000, "dt": 0.1, "T_ms": 1000.0, "steps": 10000, "J": 0.1, "g": 5.0, "eta": 2.0, "d_min": 1.5, "d_max": 1.5, "fixed_rate": -1.0, "seed": 1234, "build_s": 5.0913963140919805, "sim_s": 0.15752334985882044, "ms_per_step": 0.015752334985882042, "realtime_factor": 0.15752334985882044, "gpu": "cuda", "rate_hz": 42.9213}
+[18:09:19] <<< validate: GeNN: exit=0, 6 s, kernel errors so far: 0
+[18:09:19] >>> sweep: GeNN
 ===== genn
+   genn-post N=  100000 K= 1000 rate=   NoneHz ms/step=0.0148
+   genn-post N=  100000 K= 1000 rate=   NoneHz ms/step=0.0230
+   genn-post N=  100000 K= 1000 rate=   NoneHz ms/step=0.0578
+   genn-post N=  100000 K= 1000 rate=   NoneHz ms/step=0.1304
+   genn-post N=  100000 K= 1000 rate=   NoneHz ms/step=0.5695
+    genn-pre N=  100000 K= 1000 rate=   NoneHz ms/step=0.2545
+   genn-post N=   12500 K= 1000 rate=   NoneHz ms/step=0.0207
+   genn-post N=   50000 K= 1000 rate=   NoneHz ms/step=0.0791
+   genn-post N=  100000 K= 1000 rate=   NoneHz ms/step=0.1385
+   genn-post N=  200000 K= 1000 rate=   NoneHz ms/step=0.2703
+[18:10:24] <<< sweep: GeNN: exit=0, 65 s, kernel errors so far: 0
+[18:10:24] >>> plots
+wrote /home/test/rakshitha/neuron_GPU_SIM/results/rate.png
+wrote /home/test/rakshitha/neuron_GPU_SIM/results/size.png
+wrote /home/test/rakshitha/neuron_GPU_SIM/results/indegree.png
+wrote /home/test/rakshitha/neuron_GPU_SIM/results/dense.png
+GPU push   rate=43.36 Hz  CV(ISI)=0.355  Fano=9.98
+GPU pull   rate=43.35 Hz  CV(ISI)=0.353  Fano=9.58
+GeNN       rate=42.86 Hz  CV(ISI)=0.352  Fano=14.37
+Brian2     rate=43.15 Hz  CV(ISI)=0.349  Fano=11.65
+wrote /home/test/rakshitha/neuron_GPU_SIM/results/validate.png
+[18:10:26] <<< plots: exit=0, 2 s, kernel errors so far: 0
+done; full log in results/run_all.log

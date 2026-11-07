@@ -2,17 +2,20 @@
 
 | strategy | k_lif_update | delivery kernel | delivery | total/step |
 |---|---|---|---|---|
-| naive | 16.9 | k_push_naive | 113.4 | 130.3 |
-| push | 12.5 | k_push_warp | 12.4 | 25.0 |
-| pull | 17.6 | k_pull | 433.9 | 451.6 |
+| naive | 11.2 | k_push_naive | 119.2 | 130.3 |
+| push | 10.9 | k_push_warp | 13.4 | 24.3 |
+| pull | 16.1 | k_pull | 466.5 | 482.6 |
+| push-opt | 2.0 | k_push_warp | 13.5 | 15.6 |
 
 ### Nsight Compute: per-kernel metrics (avg over profiled launches)
 
 | strategy | kernel | time (us) | mem SOL % | SM SOL % | DRAM rd MB | DRAM wr MB | L2 hit % | L1 hit % | occupancy % | atomic reqs | sectors/load req |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| naive | k_lif_update | 28.0 | 65.7 | 1.7 | 7.62 | 10.44 | 68.5 | 68.1 | 48.5 | 0.0 | 21.5 |
-| naive | k_push_naive | 133.2 | 2.5 | 0.2 | 1.25 | 1.57 | 83.4 | 44.6 | 40.8 | 7065.3 | 14.0 |
-| push | k_lif_update | 27.1 | 66.3 | 1.8 | 7.62 | 10.02 | 68.0 | 68.1 | 47.1 | 0.0 | 21.5 |
-| push | k_push_warp | 16.2 | 20.3 | 2.2 | 1.24 | 1.56 | 83.3 | 5.7 | 58.8 | 6512.7 | 2.6 |
-| pull | k_lif_update | 29.4 | 65.7 | 1.5 | 7.62 | 11.35 | 67.2 | 68.4 | 47.8 | 0.0 | 21.5 |
-| pull | k_pull | 469.8 | 94.7 | 16.9 | 400.08 | 37.19 | 0.6 | 88.0 | 50.8 | 0.0 | 16.8 |
+| naive | k_lif_update | 30.5 | 50.8 | 3.7 | 7.62 | 5.82 | 67.9 | 69.0 | 35.2 | 0.0 | 19.2 |
+| naive | k_push_naive | 304.6 | 1.1 | 0.3 | 1.24 | 0.60 | 83.5 | 45.9 | 38.6 | 7062.7 | 8.9 |
+| push | k_lif_update | 29.2 | 46.5 | 3.9 | 7.62 | 3.40 | 68.1 | 69.1 | 36.3 | 0.0 | 19.2 |
+| push | k_push_warp | 34.0 | 9.1 | 3.2 | 1.25 | 0.79 | 83.4 | 9.3 | 55.8 | 6512.7 | 2.0 |
+| pull | k_lif_update | 31.9 | 61.6 | 3.5 | 7.63 | 10.25 | 67.5 | 68.8 | 38.2 | 0.0 | 19.2 |
+| pull | k_pull | 522.7 | 93.7 | 33.5 | 400.03 | 46.30 | 0.7 | 88.0 | 41.7 | 0.0 | 16.8 |
+| push-opt | k_lif_update | 9.5 | 23.0 | 12.8 | 1.22 | 0.72 | 56.3 | 35.7 | 33.1 | 0.0 | 3.2 |
+| push-opt | k_push_warp | 34.6 | 8.7 | 3.1 | 1.21 | 0.69 | 83.3 | 9.4 | 56.9 | 6311.7 | 2.0 |

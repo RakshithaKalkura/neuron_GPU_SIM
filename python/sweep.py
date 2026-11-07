@@ -26,7 +26,7 @@ OPT = ["--stateless-rng", "--graph", "100"]   # the optimizations that helped (s
 VARIANTS = [("naive", "naive", []), ("push", "push", []), ("pull", "pull", []),
             ("push-opt", "push", OPT), ("pull-opt", "pull", OPT)]
 GENN = [("genn-post", "postsynaptic"), ("genn-pre", "presynaptic")]
-ENV = dict(os.environ, CUDA_PATH=os.environ.get("CUDA_PATH", "/usr/local/cuda"))
+ENV = dict(os.environ, CUDA_PATH=os.environ.get("CUDA_PATH", "/usr/local/cuda"))  # GeNN needs it
 
 
 def run(cmd, outfile, label, reps=3, timeout=900):
@@ -49,9 +49,9 @@ def run(cmd, outfile, label, reps=3, timeout=900):
     best["label"] = label
     with open(outfile, "a") as f:
         f.write(json.dumps(best) + "\n")
-    rate = best.get("rate_hz")
+    rate = best.get("rate_hz")   # None for GeNN runs without spike recording
     print(f"{label:>12s} N={best['N']:>8} K={best['K']:>5} "
-          f"rate={rate if rate is None else round(rate, 2)!s:>7}Hz "
+          f"rate={'-' if rate is None else round(rate, 2)!s:>7}Hz "
           f"ms/step={best['ms_per_step']:.4f}", flush=True)
     return best
 
@@ -96,6 +96,8 @@ def sweep_indegree():
 
 def sweep_size():
     f = fresh("size")
+    # N = 1M needs ~10 GB of GPU memory; on a smaller GPU that point fails ("FAILED")
+    # and the sweep continues with the rest.
     for N in [12_500, 25_000, 50_000, 100_000, 200_000, 500_000, 1_000_000]:
         # Brunel dynamics, fixed in-degree -> same ~43 Hz regime at every N
         all_variants(f, reps=1, N=N, K=1000, T=500, eta=2.0)

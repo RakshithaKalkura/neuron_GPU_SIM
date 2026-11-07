@@ -8,13 +8,15 @@ Nsight Compute: memory/compute throughput, DRAM traffic, cache hit rates, coales
 """
 import csv
 import io
+import os
 import pathlib
+import shutil
 import re
 import statistics
 import subprocess
 
 P = pathlib.Path(__file__).resolve().parent.parent / "results" / "profile"
-NCU = "/usr/local/cuda/bin/ncu"
+NCU = os.environ.get("NCU") or shutil.which("ncu") or "/usr/local/cuda/bin/ncu"
 STRATS = ["naive", "push", "pull", "push-opt"]
 
 M = {  # metric -> header

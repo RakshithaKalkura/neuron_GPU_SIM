@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
-# Reproduce every result in results/. Run on an idle GPU.
-#   scripts/run_all.sh            # everything (about 1-2 h; GeNN compiles are slow)
-#   SKIP_GENN=1 scripts/run_all.sh
+# Reproduce every result in results/ (run scripts/setup.sh first). Use an idle GPU.
+#   scripts/run_all.sh                   # everything: ~15 min, plus GeNN compiles
+#   SKIP_GENN=1 scripts/run_all.sh       # without GeNN
+#   SKIP_PROFILE=1 scripts/run_all.sh    # without Nsight profiling
+#   CUDA_VISIBLE_DEVICES=1 scripts/run_all.sh   # pick a GPU on a multi-GPU machine
 # Each step has a timeout; a failed step is logged and the next step still runs.
 # After each step the kernel log is checked for new hardware/memory errors.
 cd "$(dirname "$0")/.."
-export CUDA_PATH=${CUDA_PATH:-/usr/local/cuda} PATH=/usr/local/cuda/bin:$PATH
-PY=.venv/bin/python; [ -x "$PY" ] || PY=python3
+source scripts/env.sh
 LOG=results/run_all.log; mkdir -p results; : > "$LOG"
 START=$(date '+%Y-%m-%d %H:%M:%S')
+FAILED=()
 
 health() {   # count kernel errors since the script started
     timeout 20 journalctl -k --since "$START" --no-pager 2>/dev/null |
@@ -21,23 +23,30 @@ step() {     # step <name> <timeout_s> <command...>
     local t0=$SECONDS
     timeout -k 30 "$to" "$@" >> "$LOG" 2>&1
     local rc=$?
+    [ $rc -ne 0 ] && FAILED+=("$name")
     echo "[$(date +%T)] <<< $name: exit=$rc, $((SECONDS - t0)) s, kernel errors so far: $(health)" | tee -a "$LOG"
 }
 
+nvidia-smi --query-gpu=name,compute_cap --format=csv,noheader | tee -a "$LOG"
 step "build"              600  make
 step "tests"              600  ./build/test_snn
 step "validate: GPU push" 300  ./build/snn --strategy push --T 1000 --record 1000 --out results/gpu_push
 step "validate: GPU pull" 300  ./build/snn --strategy pull --T 1000 --record 1000 --out results/gpu_pull
 step "validate: Brian2"   1800 $PY python/brian2_ref.py --T 1000 --out results/brian2
-step "sweep: rate"        3600 python3 python/sweep.py rate
-step "sweep: indegree"    3600 python3 python/sweep.py indegree
-step "sweep: size"        3600 python3 python/sweep.py size
-step "sweep: dense"       1800 python3 python/sweep.py dense
-step "ablation"           3600 python3 python/ablation.py
-step "profile (Nsight)"   3600 scripts/profile.sh
+step "sweep: rate"        3600 $PY python/sweep.py rate
+step "sweep: indegree"    3600 $PY python/sweep.py indegree
+step "sweep: size"        3600 $PY python/sweep.py size
+step "sweep: dense"       1800 $PY python/sweep.py dense
+step "ablation"           3600 $PY python/ablation.py
+[ -z "$SKIP_PROFILE" ] && step "profile (Nsight)" 3600 scripts/profile.sh
 if [ -z "$SKIP_GENN" ]; then
     step "validate: GeNN" 1800 $PY python/genn_ref.py --N 12500 --T 1000 --record 1000 --out results/genn
-    step "sweep: GeNN"    7200 python3 python/sweep.py genn
+    step "sweep: GeNN"    7200 $PY python/sweep.py genn
 fi
 step "plots"              600  $PY python/plot.py
-echo "done; full log in $LOG" | tee -a "$LOG"
+
+if [ ${#FAILED[@]} -eq 0 ]; then
+    echo "done: all steps passed; full log in $LOG" | tee -a "$LOG"
+else
+    echo "done: FAILED steps: ${FAILED[*]}; see $LOG" | tee -a "$LOG"
+fi

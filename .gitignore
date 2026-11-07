@@ -1,7 +1,11 @@
 build/
-.venv/
+.venv
 results/*.bin
 __pycache__/
 *.nsys-rep
 *.ncu-rep
 third_party/
+
+# local run artifacts
+run_all.out
+results/profile/*.log

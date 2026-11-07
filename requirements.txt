@@ -1,0 +1,4 @@
+numpy
+matplotlib
+torch      # CUDA build needed for the dense baseline (python/dense_torch.py)
+brian2     # CPU reference simulator (python/brian2_ref.py)
