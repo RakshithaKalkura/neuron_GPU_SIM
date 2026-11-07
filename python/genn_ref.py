@@ -1,17 +1,9 @@
-"""GeNN (PyGeNN 5) version of the same Brunel network: mature code-generated GPU baseline.
+"""GeNN (PyGeNN 5) version of the same Brunel network.
 
-Mapping to our strategies:
-  --span presynaptic   : GeNN thread-per-spike           ~ our `naive`
-  --span postsynaptic  : GeNN threads over a spike's row ~ our `push` (GeNN default)
-GeNN has no receiver-driven (pull) mode for sparse connectivity.
-
-Model matches src/snn.cuh: E and I populations, fixed in-degree with replacement
-(FixedNumberPreWithReplacement; autapses possible, unlike ours: negligible),
-delta synapses (DeltaCurr), inputs discarded while refractory, external drive
-= Binomial(C_E, nu_ext*dt) per step (GeNN has no Poisson RNG; same mean, ~same variance).
-
-GeNN delay semantics: axonal_delay_steps = 0 already means a one-step latency,
-so we use D - 1 to match our "integrated at step t + d" convention.
+--span presynaptic ~ our naive (thread per spike); --span postsynaptic ~ our push.
+Differences from our model (negligible): inputs drawn with replacement, and the
+external drive is Binomial(K_E, p) because GeNN has no Poisson generator.
+GeNN's axonal_delay_steps = 0 already means one step, so we pass D - 1.
 
     .venv/bin/python python/genn_ref.py --N 12500 --T 1000 --record 1000 --out results/genn
     .venv/bin/python python/genn_ref.py --N 100000 --fixed-rate 20 --T 200 --record 0
@@ -46,12 +38,12 @@ a = ap.parse_args()
 
 N, K, dt = a.N, a.K, a.dt
 N_E, K_E = round(0.8 * N), round(0.8 * K)
-N_I, K_I = N - N_E, K - round(0.8 * K)
+N_I, K_I = N - N_E, K - K_E
 tau, theta, V_r, t_ref = 20.0, 20.0, 10.0, 2.0
 D = max(1, round(a.delay / dt))
 steps = round(a.T / dt)
-nu_thr = theta / (a.J * K_E * tau)                 # kHz
-p_ext = a.eta * nu_thr * dt                        # per external input per step
+nu_thr = theta / (a.J * K_E * tau)  # kHz
+p_ext = a.eta * nu_thr * dt
 fixed = a.fixed_rate >= 0
 
 lif = create_neuron_model(
@@ -101,8 +93,7 @@ def init_vars(n):
 pop_e = model.add_neuron_population("E", N_E, lif, params, init_vars(N_E))
 pop_i = model.add_neuron_population("I", N_I, lif, params, init_vars(N_I))
 pop_e.spike_recording_enabled = a.record > 0
-# runtime ("dynamic") parameters: changing the rate doesn't change the generated code,
-# so sweeps over firing rate reuse one compiled model
+# dynamic parameters: a rate sweep reuses one compiled model
 for pop in (pop_e, pop_i):
     for prm in ("p_fixed", "p_ext", "fixed"):
         pop.set_param_dynamic(prm)
@@ -125,17 +116,19 @@ model.build(str(build_dir))
 model.load(num_recording_timesteps=steps if a.record > 0 else None)
 build_s = time.perf_counter() - t0
 
-pop_e.vars["V"].pull_from_device()                 # sync before timing
+# copying V back makes the CPU wait for the GPU
+pop_e.vars["V"].pull_from_device()
 t0 = time.perf_counter()
 for _ in range(steps):
     model.step_time()
-pop_e.vars["V"].pull_from_device()                 # forces device sync
+pop_e.vars["V"].pull_from_device()
 wall = time.perf_counter() - t0
 
 out = {"strategy": f"genn-{a.span}", "N": N, "K": K, "M": N * K, "dt": dt, "T_ms": steps * dt,
        "steps": steps, "J": a.J, "g": a.g, "eta": a.eta, "d_min": a.delay, "d_max": a.delay,
        "fixed_rate": a.fixed_rate, "seed": a.seed, "build_s": build_s, "sim_s": wall,
-       "ms_per_step": wall * 1e3 / steps, "realtime_factor": wall * 1e3 / (steps * dt), "gpu": "cuda"}
+       "ms_per_step": wall * 1e3 / steps, "realtime_factor": wall * 1e3 / (steps * dt),
+       "gpu": "cuda"}
 if a.record > 0:
     model.pull_recording_buffers_from_device()
     times, ids = pop_e.spike_recording_data[0]
@@ -143,7 +136,7 @@ if a.record > 0:
     t_steps = np.round(times[m] / dt).astype(np.int32)
     if a.out:
         np.stack([t_steps, ids[m].astype(np.int32)], axis=1).tofile(a.out + ".bin")
-    out["rate_hz"] = len(times) / (N_E * steps * dt * 1e-3)   # E population rate
+    out["rate_hz"] = len(times) / (N_E * steps * dt * 1e-3)  # E population
 else:
     out["rate_hz"] = None
 print(json.dumps(out))

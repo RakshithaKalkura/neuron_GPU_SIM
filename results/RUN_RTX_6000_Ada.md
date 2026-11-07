@@ -71,6 +71,10 @@ median of 5, which reduces this effect.
   kernel's DRAM reads fall from 7.6 MB to 1.2 MB per step (Nsight Systems: 11 → 2 µs).
   Kernel times measured under Nsight Compute are inflated, because it replays each kernel with
   cold caches, so use the Nsight Systems times for timing.
+- **Warp-aggregated atomics make push slower** (0.32–0.97× in every configuration tested, run
+  separately with `python/warp_agg.py`). In a random network, the 32 synapses a warp handles
+  together almost never share a target (0.01% of atomics saved at N = 100k; 0.5% with sorted
+  rows), so atomic contention is not push's bottleneck.
 - **Dense PyTorch** is 12–130× slower than push at the tested sizes (N = 2k–20k).
 
 ## Step status (from `results/run_all.log`)
@@ -259,6 +263,23 @@ Plot: `results/dense.png`.
 | +graph100 | 124.6 (1.01x) | 25.1 (1.04x) | 452.4 (1.01x) |
 | all | 122.2 (1.03x) | 17.1 (1.53x) | 429.7 (1.06x) |
 
+
+## Warp-aggregated atomics for push (`python/warp_agg.py`, median of 5, µs/step)
+
+Run separately after the main run, on the same GPU, with the same build plus the `--warp-agg` flag. All configurations use `--stateless-rng --graph 100`. "Atomics saved" is counted exactly from the network (`--agg-stats`).
+
+| workload | atomics saved (unsorted / sorted) | push | + warp-agg | sorted rows | sorted + warp-agg |
+|---|---|---|---|---|---|
+| N=1,250, 20 Hz | 1.20% / 30.2% | 9.1 | 17.0 (0.54x) | 6.9 | 14.9 (0.46x) |
+| N=2,500, 20 Hz | 0.60% / 17.0% | 13.2 | 20.3 (0.65x) | 8.0 | 19.2 (0.41x) |
+| N=5,000, 20 Hz | 0.30% / 9.1% | 12.7 | 26.8 (0.48x) | 8.5 | 24.2 (0.35x) |
+| N=12,500, 20 Hz | 0.12% / 3.8% | 16.0 | 45.4 (0.35x) | 17.1 | 44.0 (0.39x) |
+| N=100,000, 20 Hz | 0.01% / 0.5% | 16.5 | 50.8 (0.32x) | 19.9 | 48.4 (0.41x) |
+| N=1,000,000, 20 Hz | – | 76.8 | 87.4 (0.88x) | 76.6 | 88.1 (0.87x) |
+| N=100,000, 5 Hz | 0.01% / 0.5% | 16.8 | 50.2 (0.33x) | 16.9 | 50.7 (0.33x) |
+| N=100,000, 200 Hz | 0.01% / 0.5% | 44.0 | 55.7 (0.79x) | 53.6 | 55.4 (0.97x) |
+
+Warp aggregation is slower in every case. Repeated targets within a warp's 32 synapses are rare (0.01% of atomics at N = 100k), and the plain atomics compile to fire-and-forget `RED` instructions. The `VOTE` + `MATCH.ANY` added to each pass make the warp wait for every target load. See the README section "Warp aggregation".
 
 ## Profiling
 

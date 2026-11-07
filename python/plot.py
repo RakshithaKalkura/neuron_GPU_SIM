@@ -1,8 +1,8 @@
-"""Plots for the report.
+"""Plots for the report (results/*.jsonl -> results/*.png).
 
-    python3 python/plot.py             # all plots
-    python3 python/plot.py rate        # results/rate.jsonl -> results/rate.png  (main result)
-    python3 python/plot.py validate    # GPU vs Brian2 raster + stats -> results/validate.png
+    python3 python/plot.py  # all plots
+    python3 python/plot.py rate  # time/step vs firing rate (main result)
+    python3 python/plot.py validate  # rasters + statistics: GPU vs Brian2 vs GeNN
 """
 import json
 import pathlib
@@ -17,27 +17,28 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent))
 from analysis import load_spikes, raster, stats  # noqa: E402
 
 RES = pathlib.Path(__file__).resolve().parent.parent / "results"
-# One hue per implementation (validated reference palette, fixed order); optimized
-# variants share the hue with a dashed line. Naive is the grey baseline.
-STYLE = {  # label -> (color, linestyle, marker, legend name)
-    "naive":     ("#8a8984", "-",  "o", "naive (thread/spike)"),
-    "push":      ("#2a78d6", "-",  "o", "push (warp/spike)"),
-    "push-opt":  ("#2a78d6", "--", "s", "push + opt"),
-    "pull":      ("#eb6834", "-",  "o", "pull"),
-    "pull-opt":  ("#eb6834", "--", "s", "pull + opt"),
-    "genn-post": ("#1baf7a", "-",  "D", "GeNN (postsynaptic)"),
-    "genn-pre":  ("#1baf7a", "--", "D", "GeNN (presynaptic)"),
+
+# label -> (colour, line style, marker, legend name)
+STYLE = {
+    "naive": ("#8a8984", "-", "o", "naive (thread/spike)"),
+    "push": ("#2a78d6", "-", "o", "push (warp/spike)"),
+    "push-opt": ("#2a78d6", "--", "s", "push + opt"),
+    "pull": ("#eb6834", "-", "o", "pull"),
+    "pull-opt": ("#eb6834", "--", "s", "pull + opt"),
+    "genn-post": ("#1baf7a", "-", "D", "GeNN (postsynaptic)"),
+    "genn-pre": ("#1baf7a", "--", "D", "GeNN (presynaptic)"),
     "dense-torch": ("#52514e", ":", "^", "dense PyTorch"),
 }
 plt.rcParams.update({"axes.spines.top": False, "axes.spines.right": False,
                      "axes.edgecolor": "#8a8984", "axes.labelcolor": "#0b0b0b",
-                     "xtick.color": "#52514e", "ytick.color": "#52514e", "lines.linewidth": 2,
-                     "lines.markersize": 6, "legend.frameon": False, "font.size": 10})
+                     "xtick.color": "#52514e", "ytick.color": "#52514e",
+                     "lines.linewidth": 2, "lines.markersize": 6,
+                     "legend.frameon": False, "font.size": 10})
 
 
 def load(name):
     p = RES / f"{name}.jsonl"
-    return [json.loads(l) for l in open(p)] if p.exists() else []
+    return [json.loads(line) for line in open(p)] if p.exists() else []
 
 
 def label(d):
@@ -45,9 +46,10 @@ def label(d):
 
 
 def events_per_s(d):
-    """Synaptic events per wall-clock second (also for GeNN rows, which lack it)."""
+    """Synaptic events per second (computed here because GeNN rows lack it)."""
     rate = d.get("rate_hz") or d.get("fixed_rate")
-    return d["N"] * d["K"] * rate * d["dt"] * 1e-3 / (d["ms_per_step"] * 1e-3)
+    events_per_step = d["N"] * d["K"] * rate * d["dt"] * 1e-3
+    return events_per_step / (d["ms_per_step"] * 1e-3)
 
 
 def series(ax, rows, x_key, y_fn, labels=None):
@@ -55,9 +57,9 @@ def series(ax, rows, x_key, y_fn, labels=None):
         r = sorted([d for d in rows if label(d) == lab], key=lambda d: d[x_key])
         if not r:
             continue
-        c, ls, m, name = STYLE[lab]
-        ax.loglog([d[x_key] for d in r], [y_fn(d) for d in r], ls=ls, marker=m, color=c,
-                  label=name)
+        colour, ls, marker, name = STYLE[lab]
+        ax.loglog([d[x_key] for d in r], [y_fn(d) for d in r],
+                  ls=ls, marker=marker, color=colour, label=name)
 
 
 def finish(fig, axes, name):
@@ -71,11 +73,12 @@ def finish(fig, axes, name):
 
 
 def crossover(ax, rows, a="push", b="pull"):
+    """Mark the rate where a and b are equally fast, if the curves cross."""
     A = {d["fixed_rate"]: d["ms_per_step"] for d in rows if label(d) == a}
     B = {d["fixed_rate"]: d["ms_per_step"] for d in rows if label(d) == b}
     xs = sorted(set(A) & set(B))
     for x0, x1 in zip(xs, xs[1:]):
-        if (A[x0] - B[x0]) * (A[x1] - B[x1]) < 0:   # sign change: log-linear interpolation
+        if (A[x0] - B[x0]) * (A[x1] - B[x1]) < 0:
             f0, f1 = np.log(A[x0] / B[x0]), np.log(A[x1] / B[x1])
             xc = np.exp(np.log(x0) + (np.log(x1) - np.log(x0)) * f0 / (f0 - f1))
             ax.axvline(xc, ls=":", color="#52514e", lw=1)
@@ -93,8 +96,7 @@ def plot_rate():
     N, K = rows[0]["N"], rows[0]["K"]
     axes[0].set(xlabel="firing rate (Hz)", ylabel="time per step (ms)",
                 title=f"Time per step vs firing rate (N={N:,}, K={K})")
-    axes[1].set(xlabel="firing rate (Hz)", ylabel="synaptic events / s",
-                title="Throughput")
+    axes[1].set(xlabel="firing rate (Hz)", ylabel="synaptic events / s", title="Throughput")
     finish(fig, axes, "rate")
 
 
@@ -118,7 +120,8 @@ def plot_indegree():
     if not rows:
         return
     fig, axes = plt.subplots(1, 2, figsize=(11, 4), sharey=True)
-    for ax, rate in zip(axes, sorted({d["fixed_rate"] for d in rows})):
+    rates = sorted({d["fixed_rate"] for d in rows})
+    for ax, rate in zip(axes, rates):
         series(ax, [d for d in rows if d["fixed_rate"] == rate], "K", lambda d: d["ms_per_step"])
         ax.set(xlabel="in-degree K", title=f"{rate:g} Hz (N={rows[0]['N']:,})")
     axes[0].set_ylabel("time per step (ms)")
@@ -139,13 +142,14 @@ def plot_dense():
 def plot_validate(T=1000.0, n_rec=1000):
     files = {"GPU push": RES / "gpu_push.bin", "GPU pull": RES / "gpu_pull.bin",
              "GeNN": RES / "genn.bin", "Brian2": RES / "brian2.bin"}
-    files = {k: v for k, v in files.items() if v.exists()}
+    files = {name: path for name, path in files.items() if path.exists()}
     fig, axes = plt.subplots(1, len(files), figsize=(5 * len(files), 4), sharey=True)
     axes = np.atleast_1d(axes)
     for ax, (name, path) in zip(axes, files.items()):
         t, i = load_spikes(path)
         s = stats(t, i, n_rec, T)
-        print(f"{name:10s} rate={s['rate_hz']:.2f} Hz  CV(ISI)={s['cv_isi']:.3f}  Fano={s['fano_pop']:.2f}")
+        print(f"{name:10s} rate={s['rate_hz']:.2f} Hz  CV(ISI)={s['cv_isi']:.3f}  "
+              f"Fano={s['fano_pop']:.2f}")
         raster(ax, t, i, t_window=(200, 400),
                title=f"{name}\n{s['rate_hz']:.1f} Hz, CV={s['cv_isi']:.2f}")
     fig.tight_layout()
@@ -154,8 +158,8 @@ def plot_validate(T=1000.0, n_rec=1000):
 
 
 if __name__ == "__main__":
-    plots = {"rate": plot_rate, "size": plot_size, "indegree": plot_indegree,
+    PLOTS = {"rate": plot_rate, "size": plot_size, "indegree": plot_indegree,
              "dense": plot_dense, "validate": plot_validate}
     which = sys.argv[1] if len(sys.argv) > 1 else "all"
-    for name in (plots if which == "all" else [which]):
-        plots[name]()
+    for name in (PLOTS if which == "all" else [which]):
+        PLOTS[name]()

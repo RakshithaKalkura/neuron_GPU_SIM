@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # One-time setup: Python venv, Python packages, GeNN (optional), build, tests.
-#   scripts/setup.sh                # everything (GeNN build takes a few minutes)
-#   SKIP_GENN=1 scripts/setup.sh    # without GeNN
+#   scripts/setup.sh  # everything (GeNN takes a few minutes)
+#   SKIP_GENN=1 scripts/setup.sh  # without GeNN
 set -euo pipefail
 cd "$(dirname "$0")/.."
 source scripts/env.sh
@@ -15,7 +15,7 @@ echo "CUDA_PATH=$CUDA_PATH"
 
 echo "== Python venv (.venv)"
 if [ ! -x .venv/bin/python ]; then
-    # Reuse an existing CUDA build of PyTorch if the system has one (saves a ~2 GB download)
+    # reuse the system's CUDA PyTorch if there is one (saves a ~2 GB download)
     if python3 -c "import torch, sys; sys.exit(not torch.cuda.is_available())" 2>/dev/null; then
         python3 -m venv --system-site-packages .venv
     else

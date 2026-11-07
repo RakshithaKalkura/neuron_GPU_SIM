@@ -1,12 +1,7 @@
-"""Brian2 (CPU) reference for the same Brunel network.
+"""Brian2 (CPU) reference for the same Brunel network. Compare statistics, not spike times.
 
-Same model as src/snn.cuh: LIF with delta synapses, fixed in-degree K (80% E / 20% I),
-uniform delay, inputs discarded while refractory, external Poisson drive.
-Compare *statistics* (rate, CV(ISI), Fano), not spike times.
-
-Note on timing: Brian2 applies synaptic input after the threshold check of the
-arrival step, so an input arriving at step t+d acts at step t+d+1. We therefore
-use delay - dt here, so the effective delay matches the GPU simulator.
+Brian2 applies an input one step after it arrives, so we use delay - dt to match
+the GPU simulator.
 
     .venv/bin/python python/brian2_ref.py --N 12500 --K 1000 --T 1000 --out results/brian2
 """
@@ -34,7 +29,7 @@ ap.add_argument("--out", default=None, help="prefix for <out>.bin spike file")
 a = ap.parse_args()
 
 prefs.codegen.target = a.target
-# gcc-11 ICEs on some Cython modules with -march=native; drop it
+# gcc-11 crashes on some Cython modules with -march=native, so leave it out
 prefs.codegen.cpp.extra_compile_args_gcc = ["-w", "-O3", "-ffast-math", "-fno-finite-math-only"]
 b2seed(a.seed)
 rng = np.random.default_rng(a.seed)
@@ -46,8 +41,8 @@ K_E = int(round(0.8 * K))
 K_I = K - K_E
 tau, theta, V_r, t_ref = 20.0, 20.0, 10.0, 2.0
 J = a.J
-nu_thr = theta / (J * K_E * tau)          # kHz
-nu_ext = a.eta * nu_thr                     # kHz
+nu_thr = theta / (J * K_E * tau)  # kHz
+nu_ext = a.eta * nu_thr
 
 eqs = "dv/dt = -v / (20*ms) : volt (unless refractory)"
 G = NeuronGroup(N, eqs, threshold="v >= 20*mV", reset="v = 10*mV",
@@ -55,26 +50,28 @@ G = NeuronGroup(N, eqs, threshold="v >= 20*mV", reset="v = 10*mV",
 G.v = "20*mV * rand()"
 
 
-def fixed_indegree(src_lo, src_n, k):
+def fixed_indegree(src_first, src_count, k):
+    """Every neuron gets k random inputs from [src_first, src_first + src_count)."""
     post = np.repeat(np.arange(N), k)
-    pre = src_lo + rng.integers(0, src_n, size=N * k)
-    # resample autapses
-    bad = pre == post
+    pre = src_first + rng.integers(0, src_count, size=N * k)
+    bad = pre == post  # redraw self-connections
     while bad.any():
-        pre[bad] = src_lo + rng.integers(0, src_n, size=bad.sum())
+        pre[bad] = src_first + rng.integers(0, src_count, size=bad.sum())
         bad = pre == post
     return pre, post
 
 
 delay = (a.delay - a.dt) * ms
-SE = Synapses(G, G, on_pre="v_post += J_syn * int(not_refractory_post)",
-              namespace={"J_syn": J * mV}, delay=delay)
+on_pre = "v_post += J_syn * int(not_refractory_post)"  # ignored while refractory
+
+SE = Synapses(G, G, on_pre=on_pre, namespace={"J_syn": J * mV}, delay=delay)
 pre, post = fixed_indegree(0, N_E, K_E)
 SE.connect(i=pre, j=post)
-SI = Synapses(G, G, on_pre="v_post += J_syn * int(not_refractory_post)",
-              namespace={"J_syn": -a.g * J * mV}, delay=delay)
+
+SI = Synapses(G, G, on_pre=on_pre, namespace={"J_syn": -a.g * J * mV}, delay=delay)
 pre, post = fixed_indegree(N_E, N - N_E, K_I)
 SI.connect(i=pre, j=post)
+
 P = PoissonInput(G, "v", K_E, nu_ext / ms, weight="J_ext * int(not_refractory)")
 M = SpikeMonitor(G[:a.record])
 

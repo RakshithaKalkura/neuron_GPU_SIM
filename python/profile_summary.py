@@ -1,25 +1,21 @@
-"""Summarize the Nsight reports from scripts/profile.sh.
+"""Turn the Nsight reports from scripts/profile.sh into results/profile/summary.md.
 
-    python3 python/profile_summary.py     -> prints markdown, writes results/profile/summary.md
-
-Nsight Systems: median per-kernel time (medians are robust to other GPU tenants).
-Nsight Compute: memory/compute throughput, DRAM traffic, cache hit rates, coalescing,
-                atomic (RED) requests, averaged over the profiled launches.
+Nsight Systems: median time of each kernel.
+Nsight Compute: bandwidth, DRAM traffic, cache hits, coalescing, atomics (avg over launches).
 """
 import csv
 import io
 import os
 import pathlib
 import shutil
-import re
-import statistics
 import subprocess
 
 P = pathlib.Path(__file__).resolve().parent.parent / "results" / "profile"
 NCU = os.environ.get("NCU") or shutil.which("ncu") or "/usr/local/cuda/bin/ncu"
 STRATS = ["naive", "push", "pull", "push-opt"]
 
-M = {  # metric -> header
+# metric -> column name ("_" = only used to compute sectors/load req)
+METRICS = {
     "gpu__time_duration.sum": "time (us)",
     "gpu__compute_memory_throughput.avg.pct_of_peak_sustained_elapsed": "mem SOL %",
     "sm__throughput.avg.pct_of_peak_sustained_elapsed": "SM SOL %",
@@ -32,8 +28,12 @@ M = {  # metric -> header
     "l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum": "_ld_requests",
     "l1tex__t_requests_pipe_lsu_mem_global_op_red.sum": "atomic reqs",
 }
-SCALE = {"nsecond": 1e-3, "usecond": 1.0, "msecond": 1e3,               # -> us
-         "byte": 1e-6, "Kbyte": 1e-3, "Mbyte": 1.0, "Gbyte": 1e3}     # -> MB
+LD_SECTORS = "l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum"
+LD_REQUESTS = "l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum"
+
+# convert to us and MB
+SCALE = {"nsecond": 1e-3, "usecond": 1.0, "msecond": 1e3,
+         "byte": 1e-6, "Kbyte": 1e-3, "Mbyte": 1.0, "Gbyte": 1e3}
 
 
 def num(s):
@@ -44,70 +44,77 @@ def num(s):
 
 
 def ncu_table(strat):
+    """{kernel: {metric: average}} from ncu_<strat>.ncu-rep."""
     rep = P / f"ncu_{strat}.ncu-rep"
     if not rep.exists():
         return {}
-    out = subprocess.run([NCU, "--import", str(rep), "--csv", "--page", "raw", "--metrics",
-                          ",".join(M)], capture_output=True, text=True, timeout=600).stdout
+    # CSV: row 0 = names, row 1 = units, then one row per launch
+    out = subprocess.run([NCU, "--import", str(rep), "--csv", "--page", "raw",
+                          "--metrics", ",".join(METRICS)],
+                         capture_output=True, text=True, timeout=600).stdout
     rows = list(csv.reader(io.StringIO(out)))
-    hdr, units, data = rows[0], rows[1], rows[2:]
-    idx = {h: i for i, h in enumerate(hdr)}
+    header, units, launches = rows[0], rows[1], rows[2:]
+    col = {h: i for i, h in enumerate(header)}
+
     per_kernel = {}
-    for r in data:
-        k = r[idx["Kernel Name"]].split("(")[0]
-        d = per_kernel.setdefault(k, {m: [] for m in M})
-        for m in M:
-            if m in idx and (v := num(r[idx[m]])) is not None:
-                d[m].append(v * SCALE.get(units[idx[m]], 1.0))
-    res = {}
-    for k, d in per_kernel.items():
-        avg = {m: (sum(v) / len(v) if v else None) for m, v in d.items()}
-        ld_s, ld_r = avg.pop("l1tex__t_sectors_pipe_lsu_mem_global_op_ld.sum"), \
-            avg.pop("l1tex__t_requests_pipe_lsu_mem_global_op_ld.sum")
-        avg["sectors/load req"] = ld_s / ld_r if ld_s and ld_r else None
-        res[k] = avg
-    return res
+    for r in launches:
+        kernel = r[col["Kernel Name"]].split("(")[0]
+        values = per_kernel.setdefault(kernel, {m: [] for m in METRICS})
+        for m in METRICS:
+            if m in col and (v := num(r[col[m]])) is not None:
+                values[m].append(v * SCALE.get(units[col[m]], 1.0))
+
+    result = {}
+    for kernel, values in per_kernel.items():
+        avg = {m: (sum(v) / len(v) if v else None) for m, v in values.items()}
+        sectors, requests = avg.pop(LD_SECTORS), avg.pop(LD_REQUESTS)
+        avg["sectors/load req"] = sectors / requests if sectors and requests else None  # 4 = coalesced
+        result[kernel] = avg
+    return result
 
 
 def nsys_medians(strat):
+    """{kernel: (median us, launches)} from nsys_<strat>.txt."""
     f = P / f"nsys_{strat}.txt"
-    res = {}
+    result = {}
     if not f.exists():
-        return res
+        return result
     for line in f.read_text().splitlines():
         cells = [c.strip() for c in line.strip().strip("|").split("|")]
         if len(cells) >= 9 and cells[-1].startswith("k_"):
             name = cells[-1].split("(")[0]
-            res[name] = (num(cells[4]) / 1e3, int(num(cells[2])))   # median us, instances
-    return res
+            result[name] = (num(cells[4]) / 1e3, int(num(cells[2])))
+    return result
 
 
 def fmt(v, nd=1):
-    return "-" if v is None else (f"{v:.{nd}f}" if abs(v) < 1e5 else f"{v:.3g}")
+    if v is None:
+        return "-"
+    return f"{v:.{nd}f}" if abs(v) < 1e5 else f"{v:.3g}"
 
 
-lines = []
-lines.append("### Nsight Systems: median kernel time per step (us)\n")
-lines.append("| strategy | k_lif_update | delivery kernel | delivery | total/step |")
-lines.append("|---|---|---|---|---|")
+lines = ["### Nsight Systems: median kernel time per step (us)\n",
+         "| strategy | k_lif_update | delivery kernel | delivery | total/step |",
+         "|---|---|---|---|---|"]
 for s in STRATS:
     med = nsys_medians(s)
     lif = med.get("k_lif_update", (None,))[0]
-    dk = [k for k in med if k.startswith(("k_push", "k_pull"))]
-    dv = med[dk[0]][0] if dk else None
-    tot = (lif or 0) + (dv or 0)
-    lines.append(f"| {s} | {fmt(lif)} | {dk[0] if dk else '-'} | {fmt(dv)} | {fmt(tot)} |")
+    delivery = [k for k in med if k.startswith(("k_push", "k_pull"))]
+    dv = med[delivery[0]][0] if delivery else None
+    total = (lif or 0) + (dv or 0)
+    lines.append(f"| {s} | {fmt(lif)} | {delivery[0] if delivery else '-'} | "
+                 f"{fmt(dv)} | {fmt(total)} |")
 
-cols = list(M.values())
-cols = [c for c in cols if not c.startswith("_")] + ["sectors/load req"]
-keys = [m for m in M if not M[m].startswith("_")] + ["sectors/load req"]
-lines.append("\n### Nsight Compute: per-kernel metrics (avg over profiled launches)\n")
-lines.append("| strategy | kernel | " + " | ".join(cols) + " |")
-lines.append("|---|---|" + "---|" * len(cols))
+keys = [m for m in METRICS if not METRICS[m].startswith("_")] + ["sectors/load req"]
+names = [METRICS.get(m, m) for m in keys]
+lines += ["\n### Nsight Compute: per-kernel metrics (avg over profiled launches)\n",
+          "| strategy | kernel | " + " | ".join(names) + " |",
+          "|---|---|" + "---|" * len(names)]
 for s in STRATS:
-    for k, avg in ncu_table(s).items():
-        lines.append(f"| {s} | {k} | " + " | ".join(fmt(avg.get(m), 2 if 'MB' in M.get(m, '') else 1)
-                                                    for m in keys) + " |")
+    for kernel, avg in ncu_table(s).items():
+        cells = [fmt(avg.get(m), 2 if "MB" in METRICS.get(m, "") else 1) for m in keys]
+        lines.append(f"| {s} | {kernel} | " + " | ".join(cells) + " |")
+
 out = "\n".join(lines)
 print(out)
 (P / "summary.md").write_text(out + "\n")
